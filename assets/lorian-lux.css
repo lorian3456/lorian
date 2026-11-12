@@ -1,0 +1,923 @@
+/* ==========================================================================
+   LORIAN — UI POLISH & MOTION LAYER
+   --------------------------------------------------------------------------
+   Decorative only. Every effect is switched off by the accessibility
+   "reduce motion" control and by the operating-system preference.
+   Loaded on all pages, so the shell (header, footer, legal pages) matches
+   the home page.
+   ========================================================================== */
+
+@property --lx-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root {
+  --lx-gold: #d4af37;
+  --lx-gold-deep: #ba9329;
+  --lx-gold-soft: #c5a059;
+  --lx-cream: #fcebc7;
+  --lx-ink: #0e0f14;
+  --lx-ease: cubic-bezier(.22, .61, .36, 1);
+  --lx-ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   1. Ambient background — slow aurora drift, vignette and film grain
+   -------------------------------------------------------------------------- */
+.lx-aura::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 10%, transparent 40%, rgba(0, 0, 0, .45) 100%);
+  pointer-events: none;
+}
+
+.lx-aura::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  opacity: .035;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.lx-aura > div:nth-child(1) { animation: lx-float-a 24s ease-in-out infinite alternate; }
+.lx-aura > div:nth-child(2) { animation: lx-float-b 30s ease-in-out infinite alternate; }
+.lx-aura > div:nth-child(3) { animation: lx-float-c 27s ease-in-out infinite alternate; }
+
+@keyframes lx-float-a {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-38px, 46px, 0) scale(1.07); }
+  100% { transform: translate3d(22px, 12px, 0) scale(1.02); }
+}
+
+@keyframes lx-float-b {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(46px, -34px, 0) scale(1.1); }
+  100% { transform: translate3d(-18px, 24px, 0) scale(1.04); }
+}
+
+@keyframes lx-float-c {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-26px, -40px, 0) scale(1.08); }
+  100% { transform: translate3d(30px, -10px, 0) scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   2. Scroll progress, back-to-top and sticky header states
+   -------------------------------------------------------------------------- */
+#lx-progress {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: auto;
+  height: 2px;
+  width: 0;
+  z-index: 100002;
+  background: linear-gradient(90deg, #ba9329, #fcebc7, #d4af37);
+  box-shadow: 0 0 14px rgba(212, 175, 55, .85);
+  pointer-events: none;
+  border-radius: 999px;
+}
+
+#lx-top {
+  position: fixed;
+  right: 18px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 99990;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, .45);
+  background: rgba(20, 21, 27, .82);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  color: var(--lx-cream);
+  cursor: pointer;
+  box-shadow: 0 14px 34px -14px rgba(0, 0, 0, .95), inset 0 1px 0 rgba(255, 255, 255, .12);
+  opacity: 0;
+  translate: 0 16px;
+  pointer-events: none;
+  transition: opacity .35s var(--lx-ease), translate .35s var(--lx-ease),
+              background-color .25s, box-shadow .25s, border-color .25s;
+}
+
+#lx-top.lx-show {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+
+#lx-top:hover {
+  background: rgba(212, 175, 55, .18);
+  border-color: rgba(212, 175, 55, .8);
+  box-shadow: 0 0 26px -6px rgba(212, 175, 55, .55), inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+
+#lx-top svg { width: 20px; height: 20px; }
+
+html.lx-scrolled .a11y-hdr header {
+  height: 4.35rem;
+  background: linear-gradient(135deg, rgba(24, 25, 32, .92), rgba(14, 15, 20, .86));
+  border-color: rgba(212, 175, 55, .42);
+  box-shadow: 0 22px 48px -22px rgba(0, 0, 0, .95),
+              0 0 40px -18px rgba(212, 175, 55, .55),
+              inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+
+html.lx-scrolled .a11y-hdr header img {
+  filter: drop-shadow(0 2px 14px rgba(212, 175, 55, .65));
+}
+
+/* --------------------------------------------------------------------------
+   3. Header navigation — gold underline sweep and active section
+   -------------------------------------------------------------------------- */
+.a11y-hdr nav:not(.m-nav) a {
+  position: relative;
+  overflow: hidden;
+}
+
+.a11y-hdr nav:not(.m-nav) a::after {
+  content: "";
+  position: absolute;
+  bottom: .3rem;
+  right: .9rem;
+  left: .9rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lx-gold), transparent);
+  scale: 0 1;
+  transform-origin: right center;
+  opacity: .95;
+  transition: scale .38s var(--lx-ease);
+}
+
+.a11y-hdr nav:not(.m-nav) a:hover::after,
+.a11y-hdr nav:not(.m-nav) a.lx-active::after {
+  scale: 1 1;
+}
+
+.a11y-hdr nav:not(.m-nav) a.lx-active {
+  color: #fff;
+  background: rgba(212, 175, 55, .10);
+}
+
+.a11y-hdr header > a img {
+  transition: transform .45s var(--lx-ease), filter .45s;
+}
+
+.a11y-hdr header > a:hover img {
+  transform: scale(1.06) rotate(-1.5deg);
+}
+
+/* mobile menu: soft spring entrance with staggered rows */
+.m-nav:not([hidden]) {
+  animation: lx-menu-in .3s var(--lx-ease-out) both;
+}
+
+.m-nav:not([hidden]) a {
+  animation: lx-menu-row .38s var(--lx-ease-out) both;
+}
+
+.m-nav:not([hidden]) a:nth-child(2) { animation-delay: .04s; }
+.m-nav:not([hidden]) a:nth-child(3) { animation-delay: .08s; }
+.m-nav:not([hidden]) a:nth-child(4) { animation-delay: .12s; }
+.m-nav:not([hidden]) a:nth-child(5) { animation-delay: .16s; }
+.m-nav:not([hidden]) a:nth-child(6) { animation-delay: .2s; }
+
+@keyframes lx-menu-in {
+  from { opacity: 0; transform: translateY(-10px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes lx-menu-row {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --------------------------------------------------------------------------
+   4. Typography and section rhythm
+   -------------------------------------------------------------------------- */
+h1, h2, h3, blockquote { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+.text-gold-gradient {
+  background: linear-gradient(100deg, #fcebc7 0%, #d4af37 26%, #fff6dd 42%, #d4af37 58%, #997825 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: lx-shimmer 9s linear infinite;
+}
+
+@keyframes lx-shimmer {
+  from { background-position: 0% 50%; }
+  to   { background-position: -220% 50%; }
+}
+
+main > section { position: relative; }
+
+main > section + section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 10%;
+  left: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .26), transparent);
+  pointer-events: none;
+}
+
+#advantages,
+#process,
+#leadership {
+  background-image: radial-gradient(58% 240px at 50% 0%, rgba(212, 175, 55, .06), transparent 72%);
+}
+
+#services,
+#portfolio,
+#contact {
+  background-image: radial-gradient(50% 300px at 50% 0%, rgba(212, 175, 55, .045), transparent 74%);
+}
+
+/* eyebrow labels get a fine gold rule */
+.lx-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.lx-eyebrow::before {
+  content: "";
+  width: 1.85rem;
+  height: 1px;
+  flex: none;
+  background: linear-gradient(90deg, transparent, currentColor);
+  opacity: .9;
+}
+
+.text-center .lx-eyebrow::after {
+  content: "";
+  width: 1.85rem;
+  height: 1px;
+  flex: none;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: .9;
+}
+
+/* --------------------------------------------------------------------------
+   5. Scroll reveal system (hidden state only exists when JS opted in)
+   -------------------------------------------------------------------------- */
+html.lx-on [data-lx] {
+  opacity: 0;
+  translate: 0 26px;
+  transition: opacity .8s var(--lx-ease) var(--lx-d, 0s),
+              translate .8s var(--lx-ease) var(--lx-d, 0s),
+              scale .8s var(--lx-ease) var(--lx-d, 0s),
+              filter .8s var(--lx-ease) var(--lx-d, 0s);
+}
+
+html.lx-on [data-lx="title"] {
+  translate: 0 18px;
+  filter: blur(7px);
+}
+
+html.lx-on [data-lx="card"] {
+  translate: 0 30px;
+  scale: .985;
+}
+
+html.lx-on [data-lx="wide"] {
+  translate: 0 18px;
+}
+
+html.lx-on [data-lx].lx-in {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  filter: blur(0);
+}
+
+html.a11y-rm [data-lx] {
+  opacity: 1 !important;
+  translate: none !important;
+  scale: 1 !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.a11y-motion-ok) [data-lx] {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: 1 !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. Floating gold frame / rotating border (hero + contact)
+   -------------------------------------------------------------------------- */
+.lx-frame { position: relative; }
+
+.lx-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--lx-angle),
+      transparent 0deg,
+      rgba(212, 175, 55, .72) 42deg,
+      transparent 100deg,
+      transparent 215deg,
+      rgba(252, 235, 199, .55) 280deg,
+      transparent 335deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: lx-border-spin 16s linear infinite;
+  pointer-events: none;
+}
+
+.lx-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(640px circle at var(--lx-mx, 50%) var(--lx-my, 18%),
+      rgba(252, 235, 199, .09), transparent 58%);
+  opacity: 0;
+  transition: opacity .5s var(--lx-ease);
+  pointer-events: none;
+}
+
+.lx-frame:hover::after { opacity: 1; }
+
+@keyframes lx-border-spin {
+  to { --lx-angle: 360deg; }
+}
+
+/* --------------------------------------------------------------------------
+   7. Cards — cursor spotlight, lift, icon reaction, gold edge
+   -------------------------------------------------------------------------- */
+.lx-card {
+  position: relative;
+  isolation: isolate;
+  translate: 0 0;
+  transition: translate .5s var(--lx-ease),
+              border-color .45s var(--lx-ease),
+              box-shadow .45s var(--lx-ease),
+              transform .3s ease-out;
+}
+
+.lx-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(460px circle at var(--lx-x, 50%) var(--lx-y, 0%),
+      rgba(212, 175, 55, .18), transparent 48%);
+  opacity: 0;
+  transition: opacity .45s var(--lx-ease);
+  pointer-events: none;
+}
+
+.lx-card:hover {
+  translate: 0 -6px;
+  border-color: rgba(212, 175, 55, .55) !important;
+  box-shadow: 0 28px 58px -30px rgba(0, 0, 0, .95),
+              0 0 40px -20px rgba(212, 175, 55, .42);
+}
+
+.lx-card:hover::before { opacity: 1; }
+
+.lx-card .lx-icon {
+  transition: transform .5s var(--lx-ease), box-shadow .5s var(--lx-ease),
+              background-color .5s, color .5s;
+}
+
+.lx-card:hover .lx-icon {
+  transform: rotate(-6deg) scale(1.08);
+  box-shadow: 0 0 26px -6px rgba(212, 175, 55, .55);
+}
+
+/* faint editorial index inside the advantages cards */
+.lx-index {
+  position: absolute;
+  top: .85rem;
+  left: 1.1rem;
+  z-index: 0;
+  font: 900 2.5rem/1 Rubik, sans-serif;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(212, 175, 55, .16);
+  opacity: .95;
+  pointer-events: none;
+  transition: -webkit-text-stroke-color .45s, translate .45s var(--lx-ease);
+}
+
+.lx-card:hover .lx-index {
+  -webkit-text-stroke-color: rgba(212, 175, 55, .45);
+  translate: 0 -3px;
+}
+
+/* --------------------------------------------------------------------------
+   8. Hero — particles, logo float, form aura
+   -------------------------------------------------------------------------- */
+main > section:first-of-type .lx-frame > .relative.z-10 { z-index: 10; }
+
+main > section:first-of-type .lx-frame img[alt=""] {
+  animation: lx-bob 7s ease-in-out infinite;
+}
+
+@keyframes lx-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+
+.lx-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.lx-particles span {
+  position: absolute;
+  left: var(--x, 50%);
+  bottom: -14px;
+  width: var(--s, 3px);
+  height: var(--s, 3px);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff6dd 0%, #d4af37 55%, rgba(212, 175, 55, 0) 72%);
+  opacity: 0;
+  animation: lx-rise var(--dur, 18s) linear infinite;
+  animation-delay: var(--del, 0s);
+}
+
+@keyframes lx-rise {
+  0%   { opacity: 0; transform: translateY(0) scale(.7); }
+  12%  { opacity: .5; }
+  70%  { opacity: .32; }
+  100% { opacity: 0; transform: translateY(-560px) scale(1.15); }
+}
+
+#quick-form .glass-gold-subtle {
+  box-shadow: 0 34px 80px -44px rgba(0, 0, 0, .95),
+              0 0 56px -26px rgba(212, 175, 55, .5);
+}
+
+#quick-form .glass-gold-subtle > .absolute {
+  animation: lx-orb 12s ease-in-out infinite alternate;
+}
+
+@keyframes lx-orb {
+  to { transform: translate3d(-22px, 16px, 0) scale(1.25); }
+}
+
+/* submit + primary gold buttons: light sweep on hover */
+.lx-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.lx-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(105deg,
+      transparent 34%,
+      rgba(255, 255, 255, .55) 48%,
+      transparent 62%);
+  translate: -130% 0;
+  pointer-events: none;
+}
+
+.lx-shine:hover::after { animation: lx-sheen .85s var(--lx-ease); }
+
+@keyframes lx-sheen {
+  from { translate: -130% 0; }
+  to   { translate: 130% 0; }
+}
+
+/* --------------------------------------------------------------------------
+   9. Services bento — drifting orbs, richer inner glow
+   -------------------------------------------------------------------------- */
+#services .grid > div > .absolute {
+  animation: lx-orb 15s ease-in-out infinite alternate;
+}
+
+#services .grid > div:nth-child(2) > .absolute {
+  animation-duration: 19s;
+  animation-direction: alternate-reverse;
+}
+
+#services .glass-gold-subtle {
+  box-shadow: 0 24px 60px -40px rgba(0, 0, 0, .9),
+              inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+
+/* --------------------------------------------------------------------------
+   10. Process — timeline dots + flowing connector
+   -------------------------------------------------------------------------- */
+#process .grid { position: relative; }
+
+#process .grid::before {
+  content: "";
+  position: absolute;
+  top: -1.05rem;
+  right: 8%;
+  left: 8%;
+  height: 1px;
+  background: linear-gradient(90deg,
+      rgba(212, 175, 55, .05),
+      rgba(212, 175, 55, .55) 20%,
+      rgba(252, 235, 199, .65) 50%,
+      rgba(212, 175, 55, .55) 80%,
+      rgba(212, 175, 55, .05));
+  background-size: 220% 100%;
+  animation: lx-line-flow 7s linear infinite;
+  pointer-events: none;
+}
+
+#process .grid > div::after {
+  content: "";
+  position: absolute;
+  top: -1.28rem;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: var(--lx-gold);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, .14),
+              0 0 18px rgba(212, 175, 55, .85);
+  animation: lx-dot 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+#process .grid > div:nth-child(2)::after { animation-delay: .55s; }
+#process .grid > div:nth-child(3)::after { animation-delay: 1.1s; }
+
+@keyframes lx-line-flow {
+  from { background-position: 0% 0; }
+  to   { background-position: -220% 0; }
+}
+
+@keyframes lx-dot {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(212, 175, 55, .14), 0 0 16px rgba(212, 175, 55, .7); }
+  50%      { box-shadow: 0 0 0 8px rgba(212, 175, 55, .04), 0 0 26px rgba(252, 235, 199, .95); }
+}
+
+#process .grid > div > div span.text-3xl {
+  filter: drop-shadow(0 0 16px rgba(212, 175, 55, .3));
+  transition: filter .45s var(--lx-ease);
+}
+
+#process .grid > div:hover > div span.text-3xl {
+  filter: drop-shadow(0 0 26px rgba(212, 175, 55, .75));
+}
+
+@media (max-width: 767px) {
+  #process .grid::before,
+  #process .grid > div::after { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   11. Portfolio — cinematic hover
+   -------------------------------------------------------------------------- */
+#portfolio .grid > div {
+  transition: translate .55s var(--lx-ease), border-color .5s,
+              box-shadow .5s, transform .3s ease-out;
+}
+
+#portfolio .grid > div:hover {
+  border-color: rgba(212, 175, 55, .65);
+  box-shadow: 0 34px 70px -34px rgba(0, 0, 0, .98),
+              0 0 50px -20px rgba(212, 175, 55, .4);
+}
+
+#portfolio .grid > div img {
+  transition: transform 1s var(--lx-ease), filter .6s var(--lx-ease);
+}
+
+#portfolio .grid > div:hover img {
+  transform: scale(1.09);
+  filter: saturate(1.08) contrast(1.03);
+}
+
+#portfolio .grid > div .absolute.bottom-6 {
+  translate: 0 12px;
+  opacity: .94;
+  transition: translate .5s var(--lx-ease), opacity .5s var(--lx-ease);
+}
+
+#portfolio .grid > div:hover .absolute.bottom-6 {
+  translate: 0 0;
+  opacity: 1;
+}
+
+#portfolio .grid > div .absolute.inset-0 {
+  transition: opacity .5s var(--lx-ease);
+}
+
+#portfolio .grid > div:hover .absolute.inset-0 { opacity: .88; }
+
+/* --------------------------------------------------------------------------
+   12. Leadership — oversized quote mark and signature underline
+   -------------------------------------------------------------------------- */
+#leadership .glass-gold-subtle {
+  position: relative;
+  overflow: hidden;
+}
+
+#leadership .glass-gold-subtle::before {
+  content: "\201C";
+  position: absolute;
+  top: .1rem;
+  left: 2rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 7.5rem;
+  line-height: 1;
+  color: rgba(212, 175, 55, .12);
+  pointer-events: none;
+  animation: lx-quote 9s ease-in-out infinite;
+}
+
+@keyframes lx-quote {
+  0%, 100% { opacity: .75; transform: translateY(0); }
+  50%      { opacity: 1; transform: translateY(-6px); }
+}
+
+#leadership .border-t .text-lg.font-bold {
+  position: relative;
+  display: inline-block;
+}
+
+#leadership .border-t .text-lg.font-bold::after {
+  content: "";
+  position: absolute;
+  bottom: -.3rem;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--lx-gold), transparent);
+  scale: 0 1;
+  transform-origin: right center;
+  animation: lx-sign 1.2s var(--lx-ease-out) 1s both;
+}
+
+@keyframes lx-sign {
+  to { scale: 1 1; }
+}
+
+/* --------------------------------------------------------------------------
+   13. Partners — ring rotation, second pulse, plate shine
+   -------------------------------------------------------------------------- */
+/* The original edge fade used a CSS mask, which some Chromium builds paint
+   as a white band. A pair of gradient overlays gives the same fade safely. */
+.lr-marquee {
+  position: relative;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.lr-marquee::before,
+.lr-marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(36px, 7%, 90px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.lr-marquee::before {
+  right: 0;
+  background: linear-gradient(270deg, #0e0f14 0%, rgba(14, 15, 20, .88) 42%, rgba(14, 15, 20, 0) 100%);
+}
+
+.lr-marquee::after {
+  left: 0;
+  background: linear-gradient(90deg, #0e0f14 0%, rgba(14, 15, 20, .88) 42%, rgba(14, 15, 20, 0) 100%);
+}
+
+html.a11y-rm .lr-marquee::before,
+html.a11y-rm .lr-marquee::after {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not(.a11y-motion-ok) .lr-marquee::before,
+  html:not(.a11y-motion-ok) .lr-marquee::after {
+    display: none;
+  }
+}
+
+.lr-ring1 { animation: lr-spin 70s linear infinite; }
+.lr-ring2 { animation: lr-spin-rev 90s linear infinite; }
+
+.lr-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 175, 55, .5);
+  animation: lr-pulse 3.2s ease-out infinite;
+  animation-delay: 1.6s;
+}
+
+.lr-core {
+  animation: lx-core-glow 6s ease-in-out infinite;
+}
+
+@keyframes lx-core-glow {
+  0%, 100% { box-shadow: 0 0 44px -6px rgba(212, 175, 55, .5); }
+  50%      { box-shadow: 0 0 74px 0 rgba(212, 175, 55, .78); }
+}
+
+.lr-plate {
+  position: relative;
+  overflow: hidden;
+  transition: translate .4s var(--lx-ease), box-shadow .4s, border-color .4s;
+}
+
+.lr-plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 36%, rgba(255, 255, 255, .6) 50%, transparent 64%);
+  translate: -130% 0;
+  pointer-events: none;
+}
+
+.lr-marquee:hover .lr-plate::after {
+  animation: lx-sheen 1.4s var(--lx-ease);
+}
+
+.lr-plate:hover {
+  translate: 0 -5px;
+  border-color: rgba(212, 175, 55, .8);
+  box-shadow: 0 18px 34px -14px rgba(212, 175, 55, .45);
+}
+
+/* --------------------------------------------------------------------------
+   14. Contact — premium aura, pulsing WhatsApp, softer fields
+   -------------------------------------------------------------------------- */
+#contact .glass-panel {
+  box-shadow: 0 40px 100px -50px rgba(0, 0, 0, 1),
+              0 0 80px -40px rgba(212, 175, 55, .45);
+}
+
+#contact a[href^="https://wa.me"] {
+  animation: lx-wa 3s ease-out infinite;
+}
+
+@keyframes lx-wa {
+  0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, .38); }
+  70%  { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+[data-contact-form] input {
+  transition: border-color .25s, box-shadow .3s, background-color .25s,
+              translate .25s var(--lx-ease);
+}
+
+[data-contact-form] input:focus {
+  translate: 0 -1px;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, .2),
+              0 12px 28px -18px rgba(212, 175, 55, .55);
+}
+
+/* --------------------------------------------------------------------------
+   15. Footer — glowing horizon and link micro-interactions
+   -------------------------------------------------------------------------- */
+footer {
+  position: relative;
+  background-image: radial-gradient(60% 160px at 50% 0%, rgba(212, 175, 55, .07), transparent 74%);
+}
+
+footer::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .55), transparent);
+  pointer-events: none;
+}
+
+footer nav a,
+footer .underline {
+  transition: color .25s, translate .3s var(--lx-ease);
+}
+
+footer nav a:hover,
+footer .underline:hover {
+  translate: 4px 0;
+}
+
+/* --------------------------------------------------------------------------
+   16. Legal / utility pages
+   -------------------------------------------------------------------------- */
+main > .max-w-3xl .glass-panel {
+  box-shadow: 0 34px 90px -46px rgba(0, 0, 0, .95),
+              0 0 70px -40px rgba(212, 175, 55, .35);
+}
+
+main > .max-w-3xl h1 {
+  background: linear-gradient(100deg, #fff 0%, #fcebc7 45%, #d4af37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+main > .max-w-3xl h2 {
+  scroll-margin-top: 7rem;
+}
+
+/* --------------------------------------------------------------------------
+   17. Small-screen refinements
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .a11y-hdr { padding-left: .75rem; padding-right: .75rem; }
+  .a11y-hdr header { padding-left: 1rem; padding-right: 1rem; gap: .5rem; }
+  .a11y-hdr header > a img { height: 2.4rem; }
+  .a11y-hdr header .flex.items-center.gap-3 { gap: .4rem; }
+  .a11y-hdr header a[href="tel:0543443334"] {
+    padding: .45rem .6rem;
+    gap: .35rem;
+  }
+  .a11y-hdr header a[href="tel:0543443334"] span.dir-ltr {
+    font-size: .72rem;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .a11y-hdr header a[href="tel:0543443334"] .material-symbols-outlined {
+    font-size: 1rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   18. Accessibility overrides — kill pure decoration, keep layout stable
+   -------------------------------------------------------------------------- */
+html.a11y-rm .lx-particles,
+html.a11y-rm .lx-frame::before,
+html.a11y-rm .lx-index,
+html.a11y-hc .lx-particles,
+html.a11y-hc .lx-index {
+  display: none !important;
+}
+
+html.a11y-hc .lx-card::before,
+html.a11y-hc .lx-frame::after { display: none !important; }
+
+html.a11y-hc .text-gold-gradient,
+html.a11y-hc main > .max-w-3xl h1 {
+  animation: none !important;
+}
+
+html.a11y-hc #lx-progress { display: none !important; }
+
+html.a11y-hc #lx-top {
+  background: #000 !important;
+  border: 2px solid #fff !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+html.a11y-hc footer::before { background: #fff !important; }
+
+/* very small screens: keep the back-to-top from hugging the a11y button */
+@media (max-width: 480px) {
+  #lx-top {
+    right: 12px;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    width: 42px;
+    height: 42px;
+  }
+}
+
+/* Touch devices: no hover lift, no tilt (kept tidy) */
+@media (hover: none) {
+  .lx-card:hover { translate: 0 0; }
+  .lx-card:hover::before { opacity: 0; }
+  #lx-top { bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+}

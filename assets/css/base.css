@@ -1,0 +1,43 @@
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+  }
+  body {
+    overscroll-behavior: none;
+    background-color: #0f1013;
+  }
+}
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #121318;
+}
+::-webkit-scrollbar-thumb {
+  background: #c5a059;
+  border-radius: 9999px;
+}
+/* Liquid Glass & Metallic Gold Reflections */
+.glass-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(220, 185, 115, 0.22);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+.glass-gold-subtle {
+  background: radial-gradient(120% 120% at 50% 0%, rgba(212, 175, 55, 0.12) 0%, rgba(20, 20, 24, 0.6) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+}
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fcebc7 0%, #d4af37 50%, #997825 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gold-glow {
+  box-shadow: 0 0 35px -5px rgba(212, 175, 55, 0.35);
+}

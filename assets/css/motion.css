@@ -1,0 +1,18 @@
+/* Scroll reveal: hidden state exists only when JS has opted in (html.lr-anim), so content never stays invisible without JS */
+html.lr-anim [data-lr]{opacity:0;translate:0 22px;transition:opacity .7s cubic-bezier(.22,.61,.36,1) var(--lr-d,0s),translate .7s cubic-bezier(.22,.61,.36,1) var(--lr-d,0s)}
+html.lr-anim [data-lr].lr-in{opacity:1;translate:0 0}
+html.lr-anim img[data-lr]{translate:0 0;scale:1.04}
+html.lr-anim img[data-lr].lr-in{scale:1;transition:opacity .9s ease var(--lr-d,0s),scale 1.1s cubic-bezier(.22,.61,.36,1) var(--lr-d,0s)}
+html.a11y-rm [data-lr]{opacity:1!important;translate:none!important;scale:1!important;transition:none!important}
+/* Interaction polish (transform/shadow only, no layout shift) */
+[data-contact-form] [type="submit"],.m-nav a,footer a{transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease,color .2s ease}
+[data-contact-form] [type="submit"]:hover{transform:translateY(-2px);box-shadow:0 10px 26px -6px rgba(212,175,55,.55)}
+[data-contact-form] [type="submit"]:active{transform:translateY(0)}
+[data-contact-form] input{transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease}
+[data-contact-form] input:focus{box-shadow:0 0 0 3px rgba(212,175,55,.22)}
+section .glass-gold-subtle,section .glass-panel{transition:border-color .3s ease,box-shadow .3s ease}
+section .glass-gold-subtle:hover{border-color:rgba(212,175,55,.55);box-shadow:0 18px 40px -16px rgba(0,0,0,.7),0 0 28px -8px rgba(212,175,55,.3)}
+section img{transition:transform .6s cubic-bezier(.22,.61,.36,1)}
+.form-status.is-ok,.form-status.is-error,.form-status.is-busy{animation:lr-pop .35s ease both}
+@keyframes lr-pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+body{overflow-x:clip}
